@@ -6,15 +6,17 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+using namespace std;
+
 // Definición e implementación de la clase MNISTViewer
 class MNISTViewer {
 public:
     // Puntero estático a la instancia actual de la clase.
     // Necesario porque FreeGLUT requiere funciones de callback estáticas.
-    static MNISTViewer* s_instance;
+    static MNISTViewer * s_instance;
 
     // Constructor de la clase: ahora acepta un vector de imágenes
-    MNISTViewer(const std::vector<std::vector<float>>& allImageData, int width, int height)
+    MNISTViewer(const vector<vector<float>>& allImageData, int width, int height)
         : m_allImageData(allImageData),
           m_imageWidth(width),
           m_imageHeight(height),
@@ -62,13 +64,13 @@ public:
 
 private:
     // Datos de TODAS las imágenes MNIST
-    std::vector<std::vector<float>> m_allImageData;
+    vector<vector<float>> m_allImageData;
     int m_imageWidth;
     int m_imageHeight;
     int m_currentImageIndex; // Índice de la imagen que se está mostrando actualmente
 
     // IDs de las texturas de OpenGL (un ID por cada imagen)
-    std::vector<GLuint> m_textureIDs;
+    vector<GLuint> m_textureIDs;
 
     // Variables para el control de la cámara y la rotación
     float m_cameraDistance;
@@ -81,7 +83,7 @@ private:
     // Carga TODAS las imágenes en texturas
     void loadAllTextures() {
         if (m_allImageData.empty()) {
-            std::cerr << "Error: No hay datos de imagen MNIST cargados para crear texturas." << std::endl;
+            cerr << "Error: No hay datos de imagen MNIST cargados para crear texturas." << endl;
             return;
         }
 
@@ -98,7 +100,7 @@ private:
 
             // Preparar datos para la textura.
             // Convertir float [0,1] a byte [0,255].
-            std::vector<GLubyte> textureData(m_imageWidth * m_imageHeight);
+            vector<GLubyte> textureData(m_imageWidth * m_imageHeight);
             for (int j = 0; j < m_imageWidth * m_imageHeight; ++j) {
                 textureData[j] = static_cast<GLubyte>(m_allImageData[i][j] * 255.0f);
             }
@@ -220,12 +222,12 @@ private:
         switch (key) {
             case GLUT_KEY_RIGHT: // Flecha derecha para siguiente imagen
                 m_currentImageIndex = (m_currentImageIndex + 1) % m_allImageData.size();
-                std::cout << "Mostrando imagen: " << m_currentImageIndex << std::endl;
+                cout << "Mostrando imagen: " << m_currentImageIndex << endl;
                 glutPostRedisplay();
                 break;
             case GLUT_KEY_LEFT: // Flecha izquierda para imagen previa
                 m_currentImageIndex = (m_currentImageIndex - 1 + m_allImageData.size()) % m_allImageData.size();
-                std::cout << "Mostrando imagen: " << m_currentImageIndex << std::endl;
+                cout << "Mostrando imagen: " << m_currentImageIndex << endl;
                 glutPostRedisplay();
                 break;
         }
@@ -255,4 +257,4 @@ private:
 // Inicialización del miembro estático
 // Debe estar fuera de la definición de la clase en un archivo .cpp,
 // pero para una solución de un solo .hpp, se coloca aquí.
-MNISTViewer* MNISTViewer::s_instance = nullptr;
+MNISTViewer * MNISTViewer::s_instance = nullptr;

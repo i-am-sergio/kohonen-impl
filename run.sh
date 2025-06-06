@@ -1,0 +1,1 @@
+g++ test2.cpp -o test2 -I. -I/usr/include -L/usr/lib -lglut -lGL -lGLU && ./test2
