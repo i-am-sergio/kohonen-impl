@@ -1,0 +1,1 @@
+g++ test3.cpp -o test3 -Iinclude -I. -lglut -lGL -lGLU -lm -fopenmp && ./test3
