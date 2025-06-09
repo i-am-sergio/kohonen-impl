@@ -5,3 +5,5 @@ test2
 a
 b
 kohonen
+.vscode
+database/*.csv

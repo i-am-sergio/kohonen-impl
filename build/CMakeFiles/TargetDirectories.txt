@@ -1,0 +1,3 @@
+/home/shinji/Escritorio/Proyectos/kohonen-impl/build/CMakeFiles/kohonen.dir
+/home/shinji/Escritorio/Proyectos/kohonen-impl/build/CMakeFiles/edit_cache.dir
+/home/shinji/Escritorio/Proyectos/kohonen-impl/build/CMakeFiles/rebuild_cache.dir
