@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/kohonen.dir/main.cpp.o CMakeFiles/kohonen.dir/src/kohonen.cpp.o CMakeFiles/kohonen.dir/src/neuron.cpp.o -o kohonen
