@@ -4,7 +4,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <iomanip>
-#include <algorithm> // Para std::max
+#include <algorithm>
+#include <omp.h>  // ← OpenMP
 #include "Reader.hpp"
 
 using namespace std;
@@ -39,18 +40,36 @@ void updateWeights(Neuron& neuron, const vector<float>& input, float lr, float i
 }
 
 Neuron* findBMU(vector<Neuron>& neurons, const vector<float>& input) {
-    Neuron* bmu = &neurons[0];
+    int bmu_idx = 0;
     float minDist = euclideanDistance(input, neurons[0].weights);
 
-    for (auto& neuron : neurons) {
-        float dist = euclideanDistance(input, neuron.weights);
-        if (dist < minDist) {
-            minDist = dist;
-            bmu = &neuron;
+    #pragma omp parallel
+    {
+        float localMinDist = minDist;
+        int localBmuIdx = bmu_idx;
+
+        #pragma omp for nowait
+        for (int i = 1; i < neurons.size(); ++i) {
+            float dist = euclideanDistance(input, neurons[i].weights);
+            if (dist < localMinDist) {
+                localMinDist = dist;
+                localBmuIdx = i;
+            }
+        }
+
+        #pragma omp critical
+        {
+            if (localMinDist < minDist) {
+                minDist = localMinDist;
+                bmu_idx = localBmuIdx;
+            }
         }
     }
-    bmu->bmu_count++;
-    return bmu;
+
+    #pragma omp atomic
+    neurons[bmu_idx].bmu_count++;
+
+    return &neurons[bmu_idx];
 }
 
 void printBMUPosition(const vector<Neuron>& neurons, const vector<float>& input) {
@@ -97,7 +116,7 @@ int main() {
     }
 
     int inputDim = 784;
-    int width = 10, height = 10, epochs = 10; // Epochs reducido para pruebas
+    int width = 10, height = 10, epochs = 10;
     float learningRate = 0.1f;
     float radius = max(width, height) / 2.0f;
 
@@ -106,28 +125,27 @@ int main() {
         for (int j = 0; j < height; ++j)
             neurons.emplace_back(inputDim, i, j);
 
-    // Entrenamiento del SOM
     for (int epoch = 0; epoch < epochs; ++epoch) {
         cout << "Epoch " << epoch + 1 << "/" << epochs << endl;
+
         for (const auto& input : raw_X_train) {
             Neuron* bmu = findBMU(neurons, input);
-            for (auto& neuron : neurons) {
-                int dx = neuron.x - bmu->x;
-                int dy = neuron.y - bmu->y;
+
+            #pragma omp parallel for
+            for (int i = 0; i < neurons.size(); ++i) {
+                int dx = neurons[i].x - bmu->x;
+                int dy = neurons[i].y - bmu->y;
                 float influence = neighborhoodFunction(dx, dy, radius);
-                updateWeights(neuron, input, learningRate, influence);
+                updateWeights(neurons[i], input, learningRate, influence);
             }
         }
+
         learningRate *= 0.99f;
         radius *= 0.99f;
     }
 
     cout << "Entrenamiento completado.\n";
-
-    // Probar predicción con una nueva entrada (reutilizamos una del dataset)
     printBMUPosition(neurons, raw_X_train[0]);
-
-    // Mostrar mapa de actividad
     printMapActivity(neurons, width, height);
 
     return 0;
