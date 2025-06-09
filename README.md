@@ -24,3 +24,9 @@ make convert
 make run
 ./build/kohonen
 ```
+
+## Execute View Sphere Neuron Kohonen with MNIST image
+
+```bash
+./run3.sh
+```
