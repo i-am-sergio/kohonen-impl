@@ -53,4 +53,19 @@ public:
     {
         return weights;
     }
+
+    // Para establecer los pesos (necesario para load)
+    void set_weights(const std::vector<double>& new_weights) 
+    {
+        weights = new_weights;
+    }
+
+    // Para establecer un peso individual (opcional)
+    void set_weight(int index, double value) 
+    {
+        if (index >= 0 && index < weights.size()) 
+        {
+            weights[index] = value;
+        }
+    }
 };

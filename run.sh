@@ -11,3 +11,6 @@ cd build
 cmake ..
 make -j$(nproc)
 echo "Build completed successfully."
+
+cd ..
+build/kohonen

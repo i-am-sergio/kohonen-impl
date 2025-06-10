@@ -9,6 +9,8 @@
 #include "som.hpp"
 #include "visualizer.hpp"
 
+const int EPOCHS = 10;
+
 int main(int argc, char **argv)
 {
     // Carga de datos
@@ -62,8 +64,12 @@ int main(int argc, char **argv)
         cerr << "Error: No se encontraron datos de entrenamiento.\n";
         return 1;
     }
-    SOM som(784);
-    som.train_and_evaluate(X_train, X_val, Y_val_labels, X_test, Y_test_labels, 10);
-    Visualizer::show(som.get_neurons(), argc, argv);
+    SOM som(784, 10);
+    som.train_and_evaluate(X_train, X_val, Y_val_labels, X_test, Y_test_labels, EPOCHS, false, false);
+    if (som.save_weights_binary("model.bin")) {
+        std::cout << "Pesos guardados correctamente\n";
+    }
+    // Visualizer::show(som.get_neurons(), argc, argv);
+
     return 0;
 }
