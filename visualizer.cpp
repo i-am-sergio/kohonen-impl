@@ -143,7 +143,7 @@ void initOpenGL() {
 
 // --- MAIN ---
 int main(int argc, char** argv) {
-    auto weights = load_som_weights("som_weights.bin");
+    auto weights = load_som_weights("model.bin");
     std::cout << "Loaded " << weights.size() << " neurons\n";
     std::cout << "Each neuron has " << weights[0].size() << " weights\n";
     
