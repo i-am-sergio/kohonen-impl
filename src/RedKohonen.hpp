@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Neuron.hpp"
+#include "Utils.hpp"
+
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -63,6 +65,7 @@ public:
 
   void train(const std::vector<std::vector<double>> &X_train) {
     for (int epoch = 0; epoch < epochs; ++epoch) {
+      auto start = start_timer();
       // Tasa de aprendizaje y radio de vecindad que decaen con el tiempo
       double current_lr = initial_learning_rate * exp(-(double)epoch / epochs);
       double current_radius = initial_radius * exp(-(double)epoch / time_constant);
@@ -80,7 +83,7 @@ public:
         int bmu_y = (bmu_idx % (dim_x * dim_y)) / dim_x;
         int bmu_x = bmu_idx % dim_x;
 
-#pragma omp parallel for
+        #pragma omp parallel for
         for (int i = 0; i < total_neurons; ++i) {
           int z = i / (dim_x * dim_y);
           int y = (i % (dim_x * dim_y)) / dim_x;
@@ -96,6 +99,8 @@ public:
         }
       }
       std::cout << std::endl;
+      double duration = stop_timer(start);
+      print_duration(duration, "Tiempo de entrenamiento");
     }
   }
 
@@ -150,7 +155,7 @@ public:
     }
 
     // Guardar las dimensiones de la red primero
-    file << dim_x << " " << dim_y << " " << dim_z << std::endl;
+    // file << dim_x << " " << dim_y << " " << dim_z << std::endl;
 
     for (const auto &neuron : neurons) {
       const auto &weights = neuron.get_weights();
@@ -186,7 +191,7 @@ public:
     // Leer los pesos de cada neurona
     while (std::getline(file, line)) {
       // Ignorar líneas vacías o que solo contienen espacios en blanco
-      if (line.empty() || std::all_of(line.begin(), line.end(), isspace)) {
+      if (line.empty() || std::all_of(line.begin(), line.end(), ::isspace)) {
         continue;
       }
 

@@ -1,75 +1,85 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <iomanip>
-#include <algorithm>
+
 #include "Reader.hpp"
-#include "som.hpp"
-#include "visualizer.hpp"
+#include "RedKohonen.hpp"
 
-const int EPOCHS = 10;
+using namespace std;
 
-int main(int argc, char **argv)
-{
-    // Carga de datos
-    std::vector<std::vector<double>> X_train;
-    std::vector<std::vector<double>> Y_train;
+// Función para convertir etiquetas de one-hot a entero
+vector<int> onehot_to_labels(const vector<vector<double>> &Y_onehot) {
+  vector<int> labels;
+  labels.reserve(Y_onehot.size());
+  for (const auto &row : Y_onehot) {
+    auto max_it = max_element(row.begin(), row.end());
+    labels.push_back(distance(row.begin(), max_it));
+  }
+  return labels;
+}
 
-    Reader::load_csv("database/mnist_train_flat_3.csv", X_train, Y_train, 60000);
-    static std::vector<int> ys;
-    ys.clear();
-    for (const auto &output_row : Y_train)
-    {
-        int max_index = std::distance(output_row.begin(), std::max_element(output_row.begin(), output_row.end()));
-        ys.push_back(max_index);
-    }
+int main(int argc, char **argv) {
+  // --- PARÁMETROS CONFIGURABLES ---
+  const int DIM_X = 10;
+  const int DIM_Y = 10;
+  const int DIM_Z = 10;
+  const int EPOCHS = 10;
+  const double LEARNING_RATE = 0.5;
+  const int INPUT_DIM = 784;            // 28x28 pixeles
+  const double VALIDATION_SPLIT = 0.20; // 20% para validación
+  const string WEIGHTS_FILENAME = "model_10ep.txt";
 
-    // Dividir sin barajar (primer 20% para validación)
-    size_t total = X_train.size();
-    size_t val_size = total / 5; // 20%
-    size_t train_size = total - val_size;
+  // --- 1. CARGA DE DATOS ---
+  cout << "Cargando datos de entrenamiento..." << endl;
+  vector<vector<double>> X_full, Y_full_onehot;
+  Reader::load_csv("database/mnist_train_flat_3.csv", X_full, Y_full_onehot);
 
-    // Crear subconjuntos sin copiar innecesariamente
-    std::vector<std::vector<double>> X_val(X_train.begin(), X_train.begin() + val_size);
-    std::vector<std::vector<double>> Y_val(Y_train.begin(), Y_train.begin() + val_size);
-    std::vector<int> Y_val_labels(ys.begin(), ys.begin() + val_size);
+  if (X_full.empty()) {
+    cerr << "Error: No se pudieron cargar los datos de entrenamiento." << endl;
+    return 1;
+  }
 
-    X_train.erase(X_train.begin(), X_train.begin() + val_size);
-    Y_train.erase(Y_train.begin(), Y_train.begin() + val_size);
-    ys.erase(ys.begin(), ys.begin() + val_size);
+  // --- 2. DIVISIÓN DE DATOS (TRAIN/VALIDATION) ---
+  size_t total_samples = X_full.size();
+  size_t val_size = static_cast<size_t>(total_samples * VALIDATION_SPLIT);
 
-    cout << "Nro de X de entrenamiento: " << X_train.size() << endl;
-    cout << "Nro de Y de entrenamiento: " << ys.size() << endl;
-    cout << "Nro de X de validación: " << X_val.size() << endl;
-    cout << "Nro de Y de validación: " << Y_val_labels.size() << endl;
+  vector<vector<double>> X_val(X_full.begin(), X_full.begin() + val_size);
+  vector<vector<double>> Y_val_onehot(Y_full_onehot.begin(), Y_full_onehot.begin() + val_size);
 
-    // Test
-    std::vector<std::vector<double>> X_test;
-    std::vector<std::vector<double>> Y_test;
-    Reader::load_csv("database/mnist_test_flat.csv", X_test, Y_test, 10000);
-    std::vector<int> Y_test_labels;
-    Y_test_labels.clear();
-    for (const auto &output_row : Y_test)
-    {
-        int max_index = std::distance(output_row.begin(), std::max_element(output_row.begin(), output_row.end()));
-        Y_test_labels.push_back(max_index);
-    }
-    cout << "Nro de X de test: " << X_test.size() << endl;
-    cout << "Nro de Y de test: " << Y_test_labels.size() << endl;
+  vector<vector<double>> X_train(X_full.begin() + val_size, X_full.end());
 
-    if (X_train.empty())
-    {
-        cerr << "Error: No se encontraron datos de entrenamiento.\n";
-        return 1;
-    }
-    SOM som(784, 10);
-    som.train_and_evaluate(X_train, X_val, Y_val_labels, X_test, Y_test_labels, EPOCHS, false, false);
-    if (som.save_weights_binary("model.bin")) {
-        std::cout << "Pesos guardados correctamente\n";
-    }
-    // Visualizer::show(som.get_neurons(), argc, argv);
+  vector<int> Y_val = onehot_to_labels(Y_val_onehot);
 
-    return 0;
+  cout << "Total de muestras: " << total_samples << endl;
+  cout << "Muestras de entrenamiento: " << X_train.size() << endl;
+  cout << "Muestras de validacion: " << X_val.size() << endl;
+
+  // --- 3. CREACIÓN Y ENTRENAMIENTO DE LA RED ---
+  RedKohonen som(INPUT_DIM, DIM_X, DIM_Y, DIM_Z, LEARNING_RATE, EPOCHS);
+
+  cout << "\nIniciando entrenamiento de la red de Kohonen..." << endl;
+  som.train(X_train);
+  cout << "Entrenamiento finalizado." << endl;
+
+  // --- 4. ETIQUETADO Y EVALUACIÓN ---
+  som.assign_labels(X_val, Y_val);
+
+  cout << "\nCargando datos de prueba..." << endl;
+  vector<vector<double>> X_test, Y_test_onehot;
+  Reader::load_csv("database/mnist_test_flat.csv", X_test, Y_test_onehot);
+  vector<int> Y_test = onehot_to_labels(Y_test_onehot);
+  cout << "Muestras de prueba: " << X_test.size() << endl;
+
+  float accuracy = som.test_accuracy(X_test, Y_test);
+  cout << "\n------------------------------------------" << endl;
+  cout << "Precision en el conjunto de prueba: " << accuracy * 100.0f << "%" << endl;
+  cout << "------------------------------------------\n" << endl;
+
+  som.save_weights(WEIGHTS_FILENAME);
+
+  // --- 5. VISUALIZACIÓN ---
+  cout << "Iniciando visualizador 3D..." << endl;
+  cout << "Controles: Clic izquierdo + arrastrar para rotar. Clic derecho + arrastrar para hacer zoom." << endl;
+
+  return 0;
 }
