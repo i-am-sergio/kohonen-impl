@@ -3,11 +3,11 @@
 #include <iostream>
 #include <cmath>
 #include <string>
-#include "include/Reader.hpp"
+#include "include/Loader.hpp"
 
 // --- CONSTANTES ---
-const int NUM_NEURONS = 1000;
-const int GRID_SIZE = 10;
+const int GRID_SIZE = 10; // 8;
+const int NUM_NEURONS = GRID_SIZE*GRID_SIZE*GRID_SIZE;
 const int IMAGE_SIZE = 28;
 const float SPACING = 2.0f;
 
@@ -23,10 +23,10 @@ class ViewNeuron {
     float radius;
     float r, g, b;
     float mesh_r, mesh_g, mesh_b;
-    std::vector<float> image;
+    std::vector<double> image;
 
 public:
-    ViewNeuron(float radius, const std::vector<float>& image, float r=1.0f, float g=1.0f, float b=1.0f,
+    ViewNeuron(float radius, const std::vector<double>& image, float r=1.0f, float g=1.0f, float b=1.0f,
                float mesh_r=0.0f, float mesh_g=1.0f, float mesh_b=0.0f)
         : radius(radius), image(image), r(r), g(g), b(b),
           mesh_r(mesh_r), mesh_g(mesh_g), mesh_b(mesh_b) {}
@@ -143,15 +143,15 @@ void initOpenGL() {
 
 // --- MAIN ---
 int main(int argc, char** argv) {
-    std::vector<std::vector<float>> raw_X_train, raw_Y_train;
-    Reader::load_csv("database/mnist_train_flat_3.csv", raw_X_train, raw_Y_train, NUM_NEURONS);
-    std::cout << "Dataset cargado: " << raw_X_train.size() << " imágenes" << std::endl;
-
+    auto weights = load_som_weights("som_weights.bin");
+    std::cout << "Loaded " << weights.size() << " neurons\n";
+    std::cout << "Each neuron has " << weights[0].size() << " weights\n";
+    
     float mesh_r = 182.0f / 255.0f; // ≈ 0.7137
     float mesh_g = 174.0f / 255.0f; // ≈ 0.6824
     float mesh_b = 235.0f / 255.0f; // ≈ 0.9215
 
-    for (const auto& image : raw_X_train) {
+    for (const auto& image : weights) {
         neurons.emplace_back(0.85f, image, 1.0f, 1.0f, 1.0f, mesh_r, mesh_g, mesh_b);
     }
 
