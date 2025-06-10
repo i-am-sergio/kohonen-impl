@@ -11,7 +11,7 @@ using namespace std;
 class Reader
 {
 public:
-    static void load_csv(const string &filename, vector<vector<float>> &X, vector<vector<float>> &Y, size_t rows = -1)
+    static void load_csv(const string &filename, vector<vector<double>> &X, vector<vector<double>> &Y, size_t rows = -1)
     {
         ifstream file(filename);
         string line;
@@ -24,7 +24,7 @@ public:
 
             stringstream ss(line);
             string token;
-            vector<float> row;
+            vector<double> row;
 
             while (getline(ss, token, ','))
             {
@@ -37,8 +37,8 @@ public:
                 continue;
             }
 
-            vector<float> x(row.begin(), row.begin() + 784); // primeras 784 columnas
-            vector<float> y(row.begin() + 784, row.end());   // últimas 10 columnas (one-hot)
+            vector<double> x(row.begin(), row.begin() + 784); // primeras 784 columnas
+            vector<double> y(row.begin() + 784, row.end());   // últimas 10 columnas (one-hot)
 
             X.push_back(x);
             Y.push_back(y);
