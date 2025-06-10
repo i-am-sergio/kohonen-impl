@@ -1,3 +1,7 @@
+.vscode
+database/*.csv
+
+# Executables
 cube
 main
 test
@@ -5,8 +9,8 @@ test2
 a
 b
 kohonen
-.vscode
-database/*.csv
+viewneuron
+
 build
 convert
 test3
