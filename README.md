@@ -8,11 +8,11 @@ g++ ./convert.cpp -o convert && ./convert
 ## 2. Ejecutar Kohonen simple
 
 ```bash
-./run.sh kohonen
+./run2.sh train
 ```
 
-## 3. Ejecutar Visualizacion de una Neurona
+## 3. Ejecutar Visualizacion de Red Kohonen (Despues de entrenar)
 
 ```bash
-./run.sh viewneuron
+./run2.sh view
 ```

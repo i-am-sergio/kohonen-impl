@@ -11,7 +11,10 @@ b
 kohonen
 viewneuron
 neuron
+visualizer
 
 build
 convert
 test3
+
+model.bin
