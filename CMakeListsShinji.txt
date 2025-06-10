@@ -1,0 +1,48 @@
+# Versión mínima de CMake requerida.
+cmake_minimum_required(VERSION 3.10)
+
+# Definición del proyecto.
+project(ProyectoRedKohonen LANGUAGES CXX)
+
+# Establecer el estándar de C++ y las extensiones.
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Opciones de compilación (Optimización y warnings).
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall")
+
+# -----------------------------------------------------------------------------
+# BUSCAR DEPENDENCIAS
+# -----------------------------------------------------------------------------
+
+# Buscar OpenMP para paralelización
+find_package(OpenMP REQUIRED)
+
+# Buscar GLUT (o FreeGLUT) para la visualización
+find_package(GLUT REQUIRED)
+
+# Buscar OpenGL
+find_package(OpenGL REQUIRED)
+
+# -----------------------------------------------------------------------------
+# DEFINIR EL EJECUTABLE
+# -----------------------------------------------------------------------------
+
+add_executable(KohonenApp src/main.cpp)
+
+# Enlazar las bibliotecas encontradas al ejecutable
+target_link_libraries(KohonenApp PRIVATE 
+    OpenMP::OpenMP_CXX
+    GLUT::GLUT
+    OpenGL::GLU
+    OpenGL::GL
+)
+
+# -----------------------------------------------------------------------------
+# MENSAJES DE SALIDA
+# -----------------------------------------------------------------------------
+
+message(STATUS "Configuración de CMake completada.")
+message(STATUS "Para compilar, crea un directorio 'build', entra en él y ejecuta: 'cmake ..' y luego 'make'")
+message(STATUS "Ejecutable generado: ./KohonenApp")
