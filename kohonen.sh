@@ -1,1 +1,0 @@
-g++ -O3 -fopenmp kohonen.cpp -o kohonen && ./kohonen

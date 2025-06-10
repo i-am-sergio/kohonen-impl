@@ -3,7 +3,7 @@
 #include <GL/freeglut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "include/reader.hpp"
+#include "include/Reader.hpp"
 
 using namespace std;
 
@@ -342,7 +342,7 @@ int main(int argc, char **argv)
     vector<vector<float>> raw_Y_train;
 
     // Carga TODAS las imágenes de entrenamiento (60000)
-    Reader::load_csv("./database/mnist_train_flat_3.csv", raw_X_train, raw_Y_train, 60000);
+    Reader::load_csv("database/mnist_train_flat_3.csv", raw_X_train, raw_Y_train, 60000);
 
     cout << "Nro de X de entrenamiento: " << raw_X_train.size() << endl;
     cout << "Nro de Y de entrenamiento: " << raw_Y_train.size() << endl;

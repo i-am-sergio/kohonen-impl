@@ -1,32 +1,18 @@
 # Red Neuronal de Kohonen
 
-## 1. Test 1: Imprimir imagen por consola (binarizacion)
-
-```sh
-g++ test.cpp -o a && ./a
+## 1. Convertir MNIST Dataset a CSV
+```bash
+g++ ./convert.cpp -o convert && ./convert
 ```
 
-## 2. Test 2: Visualizar imagen con OpenGL + Animacion
-
-```sh
-g++ test2.cpp -o b -I. -I/usr/include -L/usr/lib -lglut -lGL -lGLU && ./b
-```
-
-## Generate CSV archives of MNIST
+## 2. Ejecutar Kohonen simple
 
 ```bash
-make convert
+./run.sh kohonen
 ```
 
-## Execute Kohonen with MNIST
+## 3. Ejecutar Visualizacion de una Neurona
 
 ```bash
-make run
-./build/kohonen
-```
-
-## Execute View Sphere Neuron Kohonen with MNIST image
-
-```bash
-./run3.sh
+./run.sh viewneuron
 ```

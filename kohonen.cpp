@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <omp.h> // ← OpenMP
-#include "include/reader.hpp"
+#include "include/Reader.hpp"
 
 using namespace std;
 
@@ -134,7 +134,7 @@ int main()
     }
 
     int inputDim = 784;
-    int width = 10, height = 10, epochs = 10;
+    int width = 10, height = 10, epochs = 5;
     float learningRate = 0.1f;
     float radius = max(width, height) / 2.0f;
 
