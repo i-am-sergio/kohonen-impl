@@ -92,9 +92,9 @@ public:
         std::cout << "  Procesando muestra " << ++sample_count << "/" << X_train.size() << "\r";
 
         int bmu_idx = find_bmu(sample);
-        int bmu_z = bmu_idx / (dim_x * dim_y);
-        int bmu_y = (bmu_idx % (dim_x * dim_y)) / dim_x;
-        int bmu_x = bmu_idx % dim_x;
+        int bmu_z  = bmu_idx / (dim_x * dim_y);
+        int bmu_y  = (bmu_idx % (dim_x * dim_y)) / dim_x;
+        int bmu_x  = bmu_idx % dim_x;
 
         #pragma omp parallel for
         for (int i = 0; i < total_neurons; ++i) {
@@ -102,7 +102,9 @@ public:
           int y = (i % (dim_x * dim_y)) / dim_x;
           int x = i % dim_x;
 
-          double dist_to_bmu_sq = pow(x - bmu_x, 2) + pow(y - bmu_y, 2) + pow(z - bmu_z, 2);
+          double dist_to_bmu_sq = pow(x - bmu_x, 2)
+                                + pow(y - bmu_y, 2)
+                                + pow(z - bmu_z, 2);
 
           if (dist_to_bmu_sq < radius_sq) {
             // Función de influencia Gaussiana
@@ -116,13 +118,17 @@ public:
       double duration = stop_timer(start);
       print_duration(duration, "Tiempo de entrenamiento");
 
-      // Evaluación en validación (si está disponible)
+      //ASigno etiquetas basadas en X_val_data / Y_val_labels
       if (validation_enabled) {
+        assign_labels(X_val_data, Y_val_labels);
+
+        //Calculo precisión sobre validación
         float val_acc = test_accuracy(X_val_data, Y_val_labels);
         std::cout << "  >> Precision en validacion: " << val_acc * 100.0f << "%" << std::endl;
       }
     }
   }
+
 
 
   // Asigna una etiqueta a cada neurona basada en los datos de validación
