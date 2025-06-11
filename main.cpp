@@ -58,6 +58,7 @@ int main(int argc, char **argv) {
   RedKohonen som(INPUT_DIM, DIM_X, DIM_Y, DIM_Z, LEARNING_RATE, EPOCHS);
 
   cout << "\nIniciando entrenamiento de la red de Kohonen..." << endl;
+  som.set_validation_data(X_val, Y_val);
   som.train(X_train);
   cout << "Entrenamiento finalizado." << endl;
 
