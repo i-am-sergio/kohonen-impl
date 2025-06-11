@@ -26,6 +26,11 @@ private:
   double time_constant;
   double initial_radius;
 
+  std::vector<std::vector<double>> X_val_data;
+  std::vector<int> Y_val_labels;
+  bool validation_enabled = false;
+
+
 public:
   RedKohonen(int inputDim, int dX, int dY, int dZ, double initialLR = 0.0, int numEpochs = 0)
       : input_dim(inputDim), dim_x(dX), dim_y(dY), dim_z(dZ), initial_learning_rate(initialLR), epochs(numEpochs) {
@@ -62,17 +67,25 @@ public:
     }
     return bmu_idx;
   }
+  void set_validation_data(const std::vector<std::vector<double>> &X_val, const std::vector<int> &Y_val) {
+    X_val_data = X_val;
+    Y_val_labels = Y_val;
+    validation_enabled = true;
+  }
+
 
   void train(const std::vector<std::vector<double>> &X_train) {
     for (int epoch = 0; epoch < epochs; ++epoch) {
       auto start = start_timer();
+
       // Tasa de aprendizaje y radio de vecindad que decaen con el tiempo
       double current_lr = initial_learning_rate * exp(-(double)epoch / epochs);
       double current_radius = initial_radius * exp(-(double)epoch / time_constant);
       double radius_sq = current_radius * current_radius;
 
-      std::cout << "Epoca " << epoch + 1 << "/" << epochs << " | LR: " << current_lr << " | Radio: " << current_radius
-                << std::endl;
+      std::cout << "Epoca " << epoch + 1 << "/" << epochs
+                << " | LR: " << current_lr
+                << " | Radio: " << current_radius << std::endl;
 
       int sample_count = 0;
       for (const auto &sample : X_train) {
@@ -98,11 +111,19 @@ public:
           }
         }
       }
+
       std::cout << std::endl;
       double duration = stop_timer(start);
       print_duration(duration, "Tiempo de entrenamiento");
+
+      // Evaluación en validación (si está disponible)
+      if (validation_enabled) {
+        float val_acc = test_accuracy(X_val_data, Y_val_labels);
+        std::cout << "  >> Precision en validacion: " << val_acc * 100.0f << "%" << std::endl;
+      }
     }
   }
+
 
   // Asigna una etiqueta a cada neurona basada en los datos de validación
   void assign_labels(const std::vector<std::vector<double>> &X_val, const std::vector<int> &Y_val) {
