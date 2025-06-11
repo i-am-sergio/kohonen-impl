@@ -1,3 +1,4 @@
+// Ejecutar con: g++ main.cpp -o main -fopenmp -O3 && ./main
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -7,7 +8,6 @@
 #include <algorithm>
 #include "Reader.hpp"
 #include "som.hpp"
-#include "visualizer.hpp"
 
 const int EPOCHS = 2;
 
@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     std::vector<std::vector<double>> X_train;
     std::vector<std::vector<double>> Y_train;
 
-    Reader::load_csv("database/mnist_train_flat_3.csv", X_train, Y_train, 60000);
+    Reader::load_csv("../database/mnist_train_flat_3.csv", X_train, Y_train, 60000);
     static std::vector<int> ys;
     ys.clear();
     for (const auto &output_row : Y_train)
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     // Test
     std::vector<std::vector<double>> X_test;
     std::vector<std::vector<double>> Y_test;
-    Reader::load_csv("database/mnist_test_flat.csv", X_test, Y_test, 10000);
+    Reader::load_csv("../database/mnist_test_flat.csv", X_test, Y_test, 10000);
     std::vector<int> Y_test_labels;
     Y_test_labels.clear();
     for (const auto &output_row : Y_test)
