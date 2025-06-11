@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include <algorithm>
 #include "include/Loader.hpp"
 
 // --- CONSTANTES ---
@@ -32,41 +33,120 @@ public:
           mesh_r(mesh_r), mesh_g(mesh_g), mesh_b(mesh_b) {}
 
     void draw(float x, float y, float z) {
+        if (image.empty()) return;
+
+        // 1. Encontrar el valor mínimo y máximo en los pesos de ESTA neurona
+        const auto [min_it, max_it] = std::minmax_element(image.begin(), image.end());
+        const double min_w = *min_it;
+        const double max_w = *max_it;
+        const double range = max_w - min_w;
+
         glPushMatrix();
         glTranslatef(x, y, z);
         glRotatef(angle, 0.0f, 1.0f, 0.0f);  // rotación de la imagen
         angle += 0.001f;
 
         // Dibujar la imagen (en el centro)
-    glBegin(GL_QUADS);
-    float scale = radius * 1.5f / IMAGE_SIZE;
-    for (int i = 0; i < IMAGE_SIZE; ++i) {
-        for (int j = 0; j < IMAGE_SIZE; ++j) {
-            int idx = i * IMAGE_SIZE + j;
-            float value = image[idx];
+        glBegin(GL_QUADS);
+        float scale = radius * 1.5f / IMAGE_SIZE;
+        for (int i = 0; i < IMAGE_SIZE; ++i) {
+            for (int j = 0; j < IMAGE_SIZE; ++j) {
+                int idx = i * IMAGE_SIZE + j;
+                
+                // 2. Normalizar el valor del píxel para maximizar el contraste
+                float gray = 0.5f; // Gris por defecto si el rango es cero
+                if (range > std::numeric_limits<double>::epsilon()) {
+                    gray = static_cast<float>((image[idx] - min_w) / range);
+                }
 
-            glColor3f(value, value, value);  // Blanco a negro
-            float x0 = (j - IMAGE_SIZE / 2.0f) * scale;
-            float y0 = (i - IMAGE_SIZE / 2.0f) * scale;
-            float x1 = x0 + scale;
-            float y1 = y0 + scale;
+                glColor3f(gray, gray, gray);  // Blanco a negro
+                float x0 = (j - IMAGE_SIZE / 2.0f) * scale;
+                float y0 = (i - IMAGE_SIZE / 2.0f) * scale;
+                float x1 = x0 + scale;
+                float y1 = y0 + scale;
 
-            glVertex3f(x0, y0, 0.0f);
-            glVertex3f(x1, y0, 0.0f);
-            glVertex3f(x1, y1, 0.0f);
-            glVertex3f(x0, y1, 0.0f);
+                glVertex3f(x0, y0, 0.0f);
+                glVertex3f(x1, y0, 0.0f);
+                glVertex3f(x1, y1, 0.0f);
+                glVertex3f(x0, y1, 0.0f);
+            }
         }
+        glEnd();
+
+        // Esfera translúcida
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(mesh_r, mesh_g, mesh_b, 0.25f);  // 25% opacidad
+        glutSolidSphere(radius, 32, 32);
+        glDisable(GL_BLEND);
+
+        glPopMatrix();
     }
-    glEnd();
 
-    // Esfera translúcida
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(mesh_r, mesh_g, mesh_b, 0.25f);  // 25% opacidad
-    glutSolidSphere(radius, 32, 32);
-    glDisable(GL_BLEND);
+    void drawCube(float x, float y, float z) {
+        if (image.empty()) return;
 
-    glPopMatrix();
+        // 1. Encontrar el valor mínimo y máximo en los pesos de ESTA neurona
+        const auto [min_it, max_it] = std::minmax_element(image.begin(), image.end());
+        const double min_w = *min_it;
+        const double max_w = *max_it;
+        const double range = max_w - min_w;
+
+        glPushMatrix();
+        glTranslatef(x, y, z);
+        glRotatef(angle, 0.0f, 1.0f, 0.0f);  // rotación del cubo
+
+        // Dibujar los 6 planos (cubo)
+        float cube_size = radius * 1.2f; // Tamaño del cubo
+        float scale = cube_size / IMAGE_SIZE;
+
+        // Función para dibujar un plano en una posición dada
+        auto draw_plane = [&](float nx, float ny, float nz, float angle, float ax, float ay, float az) {
+            glPushMatrix();
+            glRotatef(angle, ax, ay, az);
+            glTranslatef(0, 0, cube_size/2);
+
+            glBegin(GL_QUADS);
+            for (int i = 0; i < IMAGE_SIZE; ++i) {
+                for (int j = 0; j < IMAGE_SIZE; ++j) {
+                    int idx = i * IMAGE_SIZE + j;
+                    float gray = 0.5f;
+                    if (range > std::numeric_limits<double>::epsilon()) {
+                        gray = static_cast<float>((image[idx] - min_w) / range);
+                    }
+
+                    glColor3f(gray, gray, gray);
+                    float x0 = (j - IMAGE_SIZE/2.0f) * scale;
+                    float y0 = (i - IMAGE_SIZE/2.0f) * scale;
+                    float x1 = x0 + scale;
+                    float y1 = y0 + scale;
+
+                    glVertex3f(x0, y0, 0.0f);
+                    glVertex3f(x1, y0, 0.0f);
+                    glVertex3f(x1, y1, 0.0f);
+                    glVertex3f(x0, y1, 0.0f);
+                }
+            }
+            glEnd();
+            glPopMatrix();
+        };
+
+        // Dibujar los 6 planos del cubo
+        draw_plane(0, 0, 1, 0, 0, 1, 0);   // Frente
+        draw_plane(0, 0, -1, 180, 0, 1, 0); // Atrás
+        draw_plane(1, 0, 0, 90, 0, 1, 0);   // Derecha
+        draw_plane(-1, 0, 0, -90, 0, 1, 0); // Izquierda
+        draw_plane(0, 1, 0, 90, 1, 0, 0);   // Arriba
+        draw_plane(0, -1, 0, -90, 1, 0, 0); // Abajo
+
+        // Esfera translúcida (ajustada al tamaño del cubo)
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(mesh_r, mesh_g, mesh_b, 0.15f);  // 15% opacidad (más transparente)
+        glutSolidSphere(cube_size * 0.85f, 32, 32); // Esfera ligeramente más pequeña que el cubo
+        glDisable(GL_BLEND);
+
+        glPopMatrix();
     }
 };
 
@@ -143,10 +223,15 @@ void initOpenGL() {
 
 // --- MAIN ---
 int main(int argc, char** argv) {
-    auto weights = load_som_weights("model.bin");
+    // auto weights = load_som_weights("model.bin");
+    auto weights = load_som_weights_txt("model_10ep.txt");
     std::cout << "Loaded " << weights.size() << " neurons\n";
     std::cout << "Each neuron has " << weights[0].size() << " weights\n";
-    
+
+    for(int i=0; i<weights[0].size(); i++){
+        std::cout << weights[0][i] << " ";
+    }
+
     float mesh_r = 182.0f / 255.0f; // ≈ 0.7137
     float mesh_g = 174.0f / 255.0f; // ≈ 0.6824
     float mesh_b = 235.0f / 255.0f; // ≈ 0.9215
@@ -155,7 +240,8 @@ int main(int argc, char** argv) {
         neurons.emplace_back(0.85f, image, 1.0f, 1.0f, 1.0f, mesh_r, mesh_g, mesh_b);
     }
 
-    glutInit(&argc, argv);
+    
+    glutInit(&argc, argv) ;
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(1000, 1000);
     glutCreateWindow("Neural Grid Viewer");
