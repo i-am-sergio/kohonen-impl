@@ -4,7 +4,7 @@
 #include <cmath>
 #include <string>
 #include <algorithm>
-#include "include/Loader.hpp"
+#include "Loader.hpp"
 
 // --- CONSTANTES ---
 const int GRID_SIZE = 10; // 8;

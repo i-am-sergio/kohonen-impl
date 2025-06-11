@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
   const int DIM_X = 10;
   const int DIM_Y = 10;
   const int DIM_Z = 10;
-  const int EPOCHS = 10;
+  const int EPOCHS = 2;
   const double LEARNING_RATE = 0.5;
   const int INPUT_DIM = 784;            // 28x28 pixeles
   const double VALIDATION_SPLIT = 0.20; // 20% para validación

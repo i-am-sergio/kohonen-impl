@@ -1,51 +1,62 @@
 #pragma once
 
 #include <fstream>
-#include <sstream>
-#include <vector>
-#include <string>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
-using namespace std;
-
-class Reader
-{
+class Reader {
 public:
-    static void load_csv(const string &filename, vector<vector<double>> &X, vector<vector<double>> &Y, size_t rows = -1)
-    {
-        ifstream file(filename);
-        string line;
-        size_t row_count = 0;
-
-        while (getline(file, line))
-        {
-            if (rows > 0 && row_count >= rows)
-                break;
-
-            stringstream ss(line);
-            string token;
-            vector<double> row;
-
-            while (getline(ss, token, ','))
-            {
-                row.push_back(stof(token));
-            }
-
-            if (row.size() != 784 + 10)
-            {
-                cerr << "Fila inválida con " << row.size() << " columnas: " << line << endl;
-                continue;
-            }
-
-            vector<double> x(row.begin(), row.begin() + 784); // primeras 784 columnas
-            vector<double> y(row.begin() + 784, row.end());   // últimas 10 columnas (one-hot)
-
-            X.push_back(x);
-            Y.push_back(y);
-
-            row_count++;
-        }
-
-        file.close();
+  static void load_csv(const std::string &filename, std::vector<std::vector<double>> &X, std::vector<std::vector<double>> &Y,
+                       size_t max_rows = 0) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+      std::cerr << "Error: No se pudo abrir el archivo " << filename << std::endl;
+      return;
     }
+
+    std::string line;
+    size_t row_count = 0;
+
+    // Omitir la cabecera
+    // getline(file, line);
+
+    while (getline(file, line)) {
+      if (max_rows > 0 && row_count >= max_rows)
+        break;
+
+      std::stringstream ss(line);
+      std::string token;
+      std::vector<double> row;
+      row.reserve(794); // Pre-reservar memoria
+
+      while (getline(ss, token, ',')) {
+        try {
+          row.push_back(stod(token));
+        } catch (const std::invalid_argument &ia) {
+          std::cerr << "Valor inválido en CSV: " << token << std::endl;
+          continue;
+        }
+      }
+
+      if (row.size() != 784 + 10) {
+        std::cerr << "Fila inválida con " << row.size() << " columnas." << std::endl;
+        continue;
+      }
+
+      // Normalizar pixeles a [0, 1] si no lo están ya
+      std::vector<double> x_pixels(784);
+      for (size_t i = 0; i < 784; ++i) {
+        x_pixels[i] = row[i] / 255.0; // MNIST está en [0, 255]
+      }
+
+      X.push_back(x_pixels);
+      Y.push_back({row.begin() + 784, row.end()});
+
+      row_count++;
+    }
+
+    file.close();
+  }
 };
