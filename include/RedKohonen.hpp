@@ -53,6 +53,24 @@ public:
     }
   }
 
+  // En public:
+  std::tuple<int,int,int> find_bmu_coords(const std::vector<double> &input) const {
+    int idx = find_bmu(input);
+    int z = idx / (dim_x * dim_y);
+    int y = (idx % (dim_x * dim_y)) / dim_x;
+    int x = idx % dim_x;
+    return {x, y, z};
+  }
+
+  std::pair<int,std::tuple<int,int,int>> predict_with_coords(const std::vector<double> &x) const {
+    int idx = find_bmu(x);
+    int z = idx / (dim_x * dim_y);
+    int y = (idx % (dim_x * dim_y)) / dim_x;
+    int x_ = idx % dim_x;
+    return { neurons[idx].get_label(), {x_, y, z} };
+  }
+
+
   // Devuelve el índice de la neurona con el peso más cercano al vector de entrada
   int find_bmu(const std::vector<double> &input) const {
     int bmu_idx = 0;
