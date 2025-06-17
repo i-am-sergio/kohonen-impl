@@ -12,6 +12,14 @@ const int NUM_NEURONS = GRID_SIZE*GRID_SIZE*GRID_SIZE;
 const int IMAGE_SIZE = 28;
 const float SPACING = 2.0f;
 
+// Índice de la neurona a resaltar (BMU). -1 = ninguno
+int highlight_idx = -1;
+
+// Llamar desde main() para fijar qué neurona pintarás en rojo
+void setHighlightIdx(int idx) {
+    highlight_idx = idx;
+}
+
 // --- VARIABLES GLOBALES ---
 float angle = 0.0f;
 float cam_radius = 45.0f;
