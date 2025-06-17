@@ -35,7 +35,7 @@ int main(int argc, char **argv)
   // --- 1. CARGA DE DATOS ---
   cout << "Cargando datos de entrenamiento..." << endl;
   vector<vector<double>> X_full, Y_full_onehot;
-  Reader::load_csv("database/mnist_train_flat_3.csv", X_full, Y_full_onehot, 10);
+  Reader::load_csv("database/Ethiopic_MNIST_train_onehot.csv", X_full, Y_full_onehot, 10);
 
   if (X_full.empty())
   {
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
   cout << "\nCargando datos de prueba..." << endl;
   vector<vector<double>> X_test, Y_test_onehot;
-  Reader::load_csv("database/mnist_test_flat.csv", X_test, Y_test_onehot, 10);
+  Reader::load_csv("database/Ethiopic_MNIST_test_onehot.csv", X_test, Y_test_onehot, 10);
   if (X_test.empty())
   {
     cerr << "Error: No se pudieron cargar los datos de prueba." << endl;
