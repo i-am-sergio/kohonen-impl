@@ -5,6 +5,9 @@
 #include <string>
 #include <algorithm>
 #include "Loader.hpp"
+#include "RedKohonen.hpp"
+#include "Reader.hpp"      // si quieres cargar un sample desde CSV
+
 
 // --- CONSTANTES ---
 const int GRID_SIZE = 10; // 8;
@@ -12,13 +15,6 @@ const int NUM_NEURONS = GRID_SIZE*GRID_SIZE*GRID_SIZE;
 const int IMAGE_SIZE = 28;
 const float SPACING = 2.0f;
 
-// Índice de la neurona a resaltar (BMU). -1 = ninguno
-int highlight_idx = -1;
-
-// Llamar desde main() para fijar qué neurona pintarás en rojo
-void setHighlightIdx(int idx) {
-    highlight_idx = idx;
-}
 
 // --- VARIABLES GLOBALES ---
 float angle = 0.0f;
@@ -157,6 +153,15 @@ public:
         glPopMatrix();
     }
 };
+
+
+// Índice de la neurona a resaltar (BMU). -1 = ninguno
+int highlight_idx = -1;
+
+// Llamar desde main() para fijar qué neurona pintarás en rojo
+void setHighlightIdx(int idx) {
+    highlight_idx = idx;
+}
 
 std::vector<ViewNeuron> neurons;
 
