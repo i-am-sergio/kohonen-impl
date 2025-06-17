@@ -21,19 +21,19 @@ El entrenamiento se realiza de forma no supervisada a través de los siguientes 
 
 Las principales funciones utilizadas en la implementación incluyen:
 
-* `calcularDistanciaEuclidiana`: calcula la distancia entre el vector de entrada y los pesos de cada neurona.
-* `encontrarBMU`: identifica la neurona más cercana al vector de entrada.
-* `actualizarPesos`: ajusta los pesos de la BMU y sus vecinos.
-* `entrenarRed`: ejecuta múltiples épocas de entrenamiento con ejemplos del dataset.
+- `calcularDistanciaEuclidiana`: calcula la distancia entre el vector de entrada y los pesos de cada neurona.
+- `encontrarBMU`: identifica la neurona más cercana al vector de entrada.
+- `actualizarPesos`: ajusta los pesos de la BMU y sus vecinos.
+- `entrenarRed`: ejecuta múltiples épocas de entrenamiento con ejemplos del dataset.
 
 ---
 
 ## Requisitos
 
-* g++
-* make
-* Dataset MNIST en formato binario (`.idx`)
-* Sistema Unix-like
+- g++
+- make
+- Dataset MNIST en formato binario (`.idx`)
+- Sistema Unix-like
 
 ---
 
@@ -71,3 +71,38 @@ Una vez finalizado el entrenamiento, se puede visualizar la topología aprendida
 
 Esto genera una representación visual que muestra cómo la red ha agrupado los diferentes dígitos del MNIST en la cuadrícula.
 
+## Salidas
+
+### BMU ONLY
+
+![Entrenamiento de MNIST con el metodo BMU ONLY](img/bmu_only.png)
+
+![Visualización de MNIST con el metodo BMU ONLY](img/bmu_view.png)
+
+### CONSTANT RADIUS
+
+![Entrenamiento de MNIST con el metodo CONSTANT RADIUS](img/constant.png)
+
+![Visualización de MNIST con el metodo CONSTANT RADIUS](img/view_constant.png)
+
+### GAUSSIAN RADIUS
+
+![Entrenamiento de MNIST con el metodo GAUSSIAN RADIUS](img/gauss.png)
+
+![Visualización de MNIST con el metodo GAUSSIAN RADIUS](img/view_gauss.png)
+
+| Modo                | Época | Learning Rate | Radio   | Train Time | Val Accuracy | Test Accuracy      | Total Time |
+| ------------------- | ----- | ------------- | ------- | ---------- | ------------ | ------------------ | ---------- |
+| **BMU ONLY**        | 1     | 0.5           | —       | 131.027s   | 11.2583%     | 11.35%             | 138.184s   |
+|                     | 5     | 0.5           | —       | 48.7219s   | 11.2583%     | 11.35%             | 56.0168s   |
+|                     | Best  | —             | —       | —          | —            | **11.35% (Ep. 1)** | —          |
+| **CONSTANT RADIUS** | 1     | 0.5           | 5       | 92.2522s   | 64.775%      | 60.33%             | 101.923s   |
+|                     | 5     | 0.224664      | 1.37973 | 83.2071s   | 87.8%        | 85.91%             | 93.5938s   |
+|                     | Best  | —             | —       | —          | —            | **85.91% (Ep. 5)** | —          |
+| **GAUSSIAN RADIUS** | 1     | 0.5           | 5       | 46.1866s   | 65.3%        | 61%                | 55.9702s   |
+|                     | 5     | 0.224664      | 1.37973 | 44.797s    | 89.1583%     | 86.9%              | 54.893s    |
+|                     | Best  | —             | —       | —          | —            | **86.9% (Ep. 5)**  | —          |
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
