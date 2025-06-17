@@ -4,7 +4,7 @@ set -e # Exit immediately if a command exits with a non-zero status
 case "$1" in
   train)
     echo "Compiling and running 'train' mode..."
-    g++ main.cpp -o main -Iinclude -I. -lm -fopenmp -O3 && ./main
+    g++ main.cpp src/*.cpp -Iinclude -O3 -fopenmp -o main && ./main
     ;;
   view)
     echo "Compiling and running 'view' mode (visualizer)..."
